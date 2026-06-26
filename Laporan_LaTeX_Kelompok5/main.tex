@@ -133,8 +133,8 @@ Secara umum, rumusan masalah laporan ini merupakan gabungan rumusan masalah ketu
 
 \begin{enumerate}[itemsep=1pt,topsep=2pt]
 \item Bagaimana distribusi temperatur dan lokasi \textit{hotspot} pada sensor CMOS selama perekaman \textit{video} 4K (Kasus 1)?
-\item Bagaimana distribusi potensial dan medan listrik pada celah \textit{barrel} lensa dan rumah logam, termasuk efek tepinya (Kasus 2)?
-\item Bagaimana \textit{dome port} dielektrik menata ulang medan listrik seragam di sekitarnya (Kasus 3)?
+\item Bagaimana distribusi potensial dan medan listrik pada kapasitor tabung tegangan tinggi sistem \textit{flash}, termasuk efek tepi yang memicu risiko dadal listrik (Kasus 2)?
+\item Bagaimana tetesan kristal cair (PDLC) pada \textit{ND filter} elektronik menata ulang medan listrik penggerak seragam di sekitarnya (Kasus 3)?
 \item Bagaimana distribusi medan magnet kumparan aktuator VCM sepanjang langkah autofokus (Kasus 4)?
 \item Bagaimana distribusi medan magnet magnet permanen OIS yang dimodelkan sebagai bola termagnetisasi seragam (Kasus 5)?
 \item Bagaimana cahaya merambat menembus \textit{dome port} dan lensa lalu membentuk citra pada sensor CMOS (Kasus 6)?
@@ -146,8 +146,8 @@ Sejalan dengan rumusan masalah di atas, tujuan laporan ini merupakan gabungan tu
 
 \begin{enumerate}[itemsep=1pt,topsep=2pt]
 \item Memetakan penyebaran panas dan kenaikan suhu sensor CMOS serta menilai risiko panas berlebih (Kasus 1).
-\item Menyelesaikan persamaan Laplace silindris dan memvalidasinya terhadap solusi koaksial analitik (Kasus 2).
-\item Menghitung medan listrik tereduksi di dalam dome dan memvalidasinya terhadap teori bola dielektrik (Kasus 3).
+\item Menyelesaikan persamaan Laplace silindris kapasitor tabung \textit{flash} dan memvalidasinya terhadap solusi koaksial analitik (Kasus 2).
+\item Menghitung medan listrik tereduksi di dalam tetesan kristal cair PDLC dan memvalidasinya terhadap teori bola dielektrik (Kasus 3).
 \item Menyelesaikan persamaan potensial vektor magnetik dan memetakan medan magnet aktuator VCM (Kasus 4).
 \item Menghitung medan interior seragam dan medan dipol eksterior magnet permanen OIS (Kasus 5).
 \item Menyimulasikan propagasi gelombang Maxwell dan pembentukan citra pada sensor CMOS (Kasus 6).
@@ -233,22 +233,25 @@ Visualisasi tren suhu terhadap waktu terekam pada kurva telemetri. Grafik terseb
 \label{fig:kasus1}
 \end{figure}
 
+\vspace{2pt}
+\noindent{\small Catatan: \textit{source code} lengkap Kasus 1 dapat diakses pada repositori \href{https://github.com/SandyFauzi/Fisika-Komputasi-5}{\texttt{github.com/SandyFauzi/Fisika-Komputasi-5}}.}
+
 % ============================================================
-\section{Kasus 2: Distribusi Potensial dan Medan Listrik \textit{Barrel} Lensa dan Rumah Logam (Laplace Silindris)}
+\section{Kasus 2: Distribusi Potensial dan Medan Listrik Kapasitor Tabung Tegangan Tinggi pada Sistem \textit{Flash} (Laplace Silindris)}
 % ============================================================
 
 \subsection{Pendahuluan}
 
 \subsubsection{Latar Belakang}
-Modul lensa pada kamera \textit{mirrorless} tersusun atas \textit{barrel} lensa, yaitu tabung presisi yang menahan dan menjajarkan elemen-elemen optik. \textit{Barrel} tersebut terpasang di dalam rumah logam (\textit{housing}) yang ditanahkan (\textit{grounded}). Pada sejumlah mekanisme, \textit{barrel} dapat memiliki beda potensial terhadap rumah, baik secara sengaja sebagai elektroda fokus maupun secara tak sengaja akibat akumulasi muatan statik (\textit{electrostatic charging}). Konfigurasi ini secara geometris setara dengan kapasitor koaksial: sebuah konduktor dalam berjari-jari  yang dikelilingi konduktor luar berjari-jari , dengan celah anular (\textit{annular gap}) di antaranya.
+Sistem lampu kilat (\textit{flash}) pada kamera, terutama unit strobo eksternal, memerlukan kapasitor penyimpan energi tegangan tinggi untuk melepaskan denyut daya besar ke tabung \textit{xenon} dalam waktu sangat singkat. Komponen ini umumnya berupa kapasitor tabung elektrolitik (\textit{tubular electrolytic capacitor}) yang tersusun atas gulungan foil elektroda dalam (anoda) berjari-jari $a$ yang terbungkus rapat di dalam selongsong logam (\textit{casing}) sebagai elektroda luar berjari-jari $b$ dan \textit{grounded}. Konfigurasi ini secara geometris setara dengan kapasitor koaksial dengan celah anular (\textit{annular gap}) berisi dielektrik di antara kedua elektroda, dan diisi hingga tegangan ekstrem orde ratusan volt ($V_0 \approx 330$~V).
 
-Karena \textit{barrel} memiliki panjang berhingga (\textit{finite}), garis medan di kedua ujungnya tidak lagi murni radial sebagaimana pada kapasitor koaksial ideal yang panjangnya tak hingga, melainkan melengkung keluar. Gejala ini dikenal sebagai efek tepi atau \textit{fringing field}, dan tidak dapat dijelaskan oleh rumus koaksial satu dimensi. Untuk memerikan medan secara lengkap, diperlukan penyelesaian dua dimensi pada bidang penampang -. Dalam keadaan bebas muatan ruang (\textit{space charge}), potensial memenuhi persamaan Laplace, yang di sini diselesaikan secara numerik melalui metode beda hingga statik (\textit{Finite-Difference Frequency-Domain}, FDFD).
+Karena gulungan foil memiliki panjang berhingga (\textit{finite}), garis medan di kedua ujung tabung tidak lagi murni radial sebagaimana pada kapasitor koaksial ideal yang panjangnya tak hingga, melainkan melengkung keluar menembus dielektrik dan udara di sekitarnya. Gejala ini dikenal sebagai efek tepi atau \textit{fringing field}, dan tidak dapat dijelaskan oleh rumus kapasitor satu dimensi. Pemetaan medan tepi ini bersifat kritis secara rancangan: di ujung gulungan, konsentrasi medan listrik dapat memicu kegagalan dielektrik (\textit{dielectric breakdown}) berupa loncatan bunga api ke \textit{casing}, sehingga diperlukan untuk menentukan ketebalan isolator ujung yang aman. Untuk memerikan medan secara lengkap, diperlukan penyelesaian dua dimensi pada bidang penampang $r$-$z$. Dalam keadaan bebas muatan ruang (\textit{space charge}), potensial memenuhi persamaan Laplace, yang di sini diselesaikan secara numerik melalui metode beda hingga statik (\textit{Finite-Difference Frequency-Domain}, FDFD).
 
 \subsubsection{Rumusan Masalah}
-Permasalahan yang dikaji dapat dirumuskan sebagai berikut: (1) bagaimana distribusi potensial listrik pada celah koaksial antara \textit{barrel} dan rumah; (2) bagaimana arah dan besar medan listrik , termasuk manifestasi efek tepi di ujung \textit{barrel}; serta (3) seberapa akurat solusi numerik FDFD jika ditakar terhadap rumus koaksial analitik pada irisan yang jauh dari ujung.
+Permasalahan yang dikaji dapat dirumuskan sebagai berikut: (1) bagaimana distribusi potensial listrik pada celah koaksial antara gulungan elektroda dalam dan \textit{casing}; (2) bagaimana arah dan besar medan listrik $\mathbf{E}$, termasuk manifestasi efek tepi yang berpotensi memicu dadal listrik di ujung gulungan; serta (3) seberapa akurat solusi numerik FDFD jika ditakar terhadap rumus kapasitor koaksial analitik pada irisan yang jauh dari ujung.
 
 \subsubsection{Tujuan}
-Penelitian ini bertujuan memodelkan celah koaksial \textit{barrel}-rumah secara elektrostatik, menyelesaikan persamaan Laplace koordinat silinder dengan metode FDFD, memvisualisasikan peta potensial beserta vektor arah medan listrik, dan menganalisis efek tepi secara kuantitatif.
+Penelitian ini bertujuan memodelkan celah koaksial elektroda dalam--\textit{casing} kapasitor \textit{flash} secara elektrostatik, menyelesaikan persamaan Laplace koordinat silinder dengan metode FDFD, memvisualisasikan peta potensial beserta vektor arah medan listrik, dan menganalisis efek tepi secara kuantitatif sebagai dasar penentuan ketebalan isolator ujung.
 
 \subsection{Teori Dasar}
 
@@ -265,10 +268,10 @@ Tanda negatif mengindikasikan bahwa vektor medan listrik selalu menunjuk dari da
 \adjustbox{max width=0.95\linewidth}{$\displaystyle \nabla^2 V = 0$}
 \end{equation}
 
-Secara fisis, Persamaan Laplace bermakna bahwa potensial di titik mana pun merupakan nilai rata-rata persis dari potensial di sekelilingnya (sifat harmonik). Tidak ada puncak atau lembah potensial lokal di wilayah hampa; titik ekstrem selalu berada di batas konduktor (barel dan \textit{housing}).
+Secara fisis, Persamaan Laplace bermakna bahwa potensial di titik mana pun merupakan nilai rata-rata persis dari potensial di sekelilingnya (sifat harmonik). Tidak ada puncak atau lembah potensial lokal di wilayah dielektrik; titik ekstrem selalu berada di batas konduktor (gulungan elektroda dalam dan \textit{casing}).
 
 \subsubsection{Persamaan Laplace Koordinat Silinder}
-Mengingat susunan lensa memiliki simetri perputaran sumbu optik ($z$), kita meninjau masalah pada sistem koordinat silinder $(r, \theta, z)$. Karena sistem simetris secara azimutal (potensial tidak bergantung sudut putar $\theta$), turunan $\partial / \partial \theta$ bernilai nol. Penjabaran operator Laplacian $\nabla^2$ dalam koordinat silinder berdimensi dua $r-z$ menjadi:
+Mengingat gulungan kapasitor tabung memiliki simetri perputaran terhadap sumbu tabung ($z$), kita meninjau masalah pada sistem koordinat silinder $(r, \theta, z)$. Karena sistem simetris secara azimutal (potensial tidak bergantung sudut putar $\theta$), turunan $\partial / \partial \theta$ bernilai nol. Penjabaran operator Laplacian $\nabla^2$ dalam koordinat silinder berdimensi dua $r-z$ menjadi:
 
 \begin{equation}
 \adjustbox{max width=0.95\linewidth}{$\displaystyle \frac{1}{r}\frac{\partial}{\partial r}\!\left(r\frac{\partial V}{\partial r}\right) + \frac{\partial^2 V}{\partial z^2} = 0 \quad\Rightarrow\quad \frac{\partial^2 V}{\partial r^2} + \frac{1}{r}\frac{\partial V}{\partial r} + \frac{\partial^2 V}{\partial z^2} = 0$}
@@ -281,18 +284,16 @@ Suku eksktra $\frac{1}{r}\frac{\partial V}{\partial r}$ membedakan sistem koordi
 \end{equation}
 
 \subsubsection{Solusi Koaksial Analitik sebagai Acuan}
-Jika kita mengabaikan ujung lensa (menganggap panjang barel tidak terhingga), maka persoalan menjadi 1D radial belaka. Integrasi ganda $\frac{1}{r}\frac{\partial}{\partial r}\left(r\frac{\partial V}{\partial r}\right) = 0$ menghasilkan solusi logaritmik $\ln(r)$. Menerapkan batas tegangan $V(a) = V_0$ pada laras dalam, dan $V(b) = 0$ (\textit{ground}) pada laras luar, menghasilkan solusi teoretis murni (Kapasitor Koaksial Silindris):
+Jika kita mengabaikan ujung tabung (menganggap panjang gulungan tidak terhingga), maka persoalan menjadi 1D radial belaka. Integrasi ganda $\frac{1}{r}\frac{\partial}{\partial r}\left(r\frac{\partial V}{\partial r}\right) = 0$ menghasilkan solusi logaritmik $\ln(r)$. Menerapkan batas tegangan $V(a) = V_0$ pada elektroda dalam, dan $V(b) = 0$ (\textit{ground}) pada \textit{casing} luar, menghasilkan solusi teoretis murni (Kapasitor Koaksial Silindris):
 
 \begin{equation}
 \adjustbox{max width=0.95\linewidth}{$\displaystyle V(r) = V_0\,\frac{\ln(b/r)}{\ln(b/a)}$}
 \end{equation}
-
-Persamaan ini valid secara ketat hanya pada penampang tengah barel. Solusi ini menjadi jangkar kebenaran (\textit{benchmark} analitik) untuk memverifikasi validitas algoritma beda hingga 2D yang kita program.
-
+\newpage
 \subsection{Metodologi}
 
 \subsubsection{Geometri dan Diskritisasi Domain}
-Domain komputasi berbentuk persegi panjang pada bidang - dengan jari-jari \textit{barrel}  mm, jari-jari rumah  mm, dan panjang aksial  mm. \textit{Barrel} diberi potensial  V dan sengaja dibuat lebih pendek daripada domain agar efek tepi terpapar di kedua ujungnya. Domain didiskritisasi memakai kisi (\textit{grid}) seragam berukuran  titik, dengan langkah ruang  dan  yang seragam.
+Domain komputasi berbentuk persegi panjang pada bidang $r$-$z$ dengan jari-jari elektroda dalam $a = 4$~mm, jari-jari \textit{casing} $b = 10$~mm, dan panjang aksial $L_z = 30$~mm. Gulungan elektroda dalam diberi potensial $V_0 = 330$~V dan sengaja dibuat lebih pendek daripada domain agar efek tepi terpapar di kedua ujungnya. Domain didiskritisasi memakai kisi (\textit{grid}) seragam berukuran $70 \times 150$ titik, dengan langkah ruang $\Delta r$ dan $\Delta z$ yang seragam.
 
 \subsubsection{Stensil Beda Hingga Konservatif}
 Persamaan Laplace didiskritisasi memakai stensil konservatif (\textit{conservative/flux-preserving stencil}) yang mengevaluasi koefisien radial pada muka antar-sel di posisi setengah-indeks , sehingga fluks listrik yang melintasi tiap muka kendali terjaga secara diskret:
@@ -300,47 +301,51 @@ Persamaan Laplace didiskritisasi memakai stensil konservatif (\textit{conservati
 \begin{equation}
 \adjustbox{max width=0.95\linewidth}{$\displaystyle \frac{V_{i+1,j}-2V_{i,j}+V_{i-1,j}}{\Delta r^2} + \frac{1}{r_i}\frac{V_{i+1,j}-V_{i-1,j}}{2\,\Delta r} + \frac{V_{i,j+1}-2V_{i,j}+V_{i,j-1}}{\Delta z^2} = 0$}
 \end{equation}
-Pada sumbu  diberlakukan syarat regularitas (\textit{regularity condition}) berupa  untuk menghindari singularitas suku , sedangkan permukaan \textit{barrel}, rumah, dan batas domain memakai syarat Dirichlet. Seluruh titik kisi dirakit menjadi sistem persamaan linear \textit{sparse} . Sistem ini diselesaikan secara langsung (\textit{direct solver}) melalui dekomposisi LU \textit{sparse} (\textit{SuperLU}) yang dipanggil melalui fungsi spsolve, lalu komponen medan listrik dihitung dengan skema beda tengah (\textit{central difference}).
+Pada sumbu $r = 0$ diberlakukan syarat regularitas (\textit{regularity condition}) berupa $\partial V/\partial r = 0$ untuk menghindari singularitas suku $\frac{1}{r}\frac{\partial V}{\partial r}$, sedangkan permukaan gulungan elektroda dalam, \textit{casing}, dan batas domain memakai syarat Dirichlet. Seluruh titik kisi dirakit menjadi sistem persamaan linear \textit{sparse} . Sistem ini diselesaikan secara langsung (\textit{direct solver}) melalui dekomposisi LU \textit{sparse} (\textit{SuperLU}) yang dipanggil melalui fungsi spsolve, lalu komponen medan listrik dihitung dengan skema beda tengah (\textit{central difference}).
 
 \subsubsection{Algoritma dan Akselerasi Komputasi}
-Perakitan matriks (\textit{matrix assembly}) yang memuat banyak elemen titik batas dapat berjalan lambat jika dieksekusi dengan perulangan standar Python, terutama ketika struktur matriks perlu diperbarui untuk setiap simulasi gerakan aktuator lensa. Untuk mengoptimalkan waktu komputasi, fungsi pembentukan elemen dieksekusi bersama fungsi \textit{Just-In-Time} (JIT) melalui paket modul \textit{Numba} (\texttt{@njit}). \textit{Numba} mereduksi latensi interpretasi operasional bawaan Python menjadi instruksi level perangkat keras (\textit{machine code}). Matriks jarang (\textit{sparse matrix}) dimensi besar ($A \cdot x = b$) ini kemudian dikomputasi menggunakan subrutin dekomposisi \textit{LU} (SuperLU) milik SciPy. Eksekusi JIT \textit{Numba} dan metode pencari invers langsung \textit{SuperLU} mempercepat iterasi penyelesaian secara keseluruhan tanpa perlu perhitungan metode tebak-ralat iteratif.
+Perakitan matriks (\textit{matrix assembly}) yang memuat banyak elemen titik batas dapat berjalan lambat jika dieksekusi dengan perulangan standar Python, terutama ketika struktur matriks perlu diperbarui untuk setiap variasi posisi dudukan gulungan foil terhadap \textit{casing}. Untuk mengoptimalkan waktu komputasi, fungsi pembentukan elemen dieksekusi bersama fungsi \textit{Just-In-Time} (JIT) melalui paket modul \textit{Numba} (\texttt{@njit}). \textit{Numba} mereduksi latensi interpretasi operasional bawaan Python menjadi instruksi level perangkat keras (\textit{machine code}). Matriks jarang (\textit{sparse matrix}) dimensi besar ($A \cdot x = b$) ini kemudian dikomputasi menggunakan subrutin dekomposisi \textit{LU} (SuperLU) milik SciPy. Eksekusi JIT \textit{Numba} dan metode pencari invers langsung \textit{SuperLU} mempercepat iterasi penyelesaian secara keseluruhan tanpa perlu perhitungan metode tebak-ralat iteratif.
 
 \subsection{Hasil dan Pembahasan}
 
-Berdasarkan komputasi pada Gambar \ref{fig:kasus2}, distribusi fluks tergambar melalui gradien pemetaan nilai skalar beda potensial ($V$) dan panah vektor medan listrik ($E$). Di rentang silinder tengah barel konduktor, garis medan terdistribusi merata dengan sudut tegak lurus terhadap arah pelat. Arah orientasi panah melukiskan lintasan elektron fiktif menuju luar (area ground potensial rendah).
+Berdasarkan komputasi pada Gambar \ref{fig:kasus2}, distribusi fluks tergambar melalui gradien pemetaan nilai skalar beda potensial ($V$) dan panah vektor medan listrik ($E$). Di rentang silinder tengah gulungan elektroda dalam, garis medan terdistribusi merata dengan arah tegak lurus terhadap permukaan elektroda. Arah orientasi panah melukiskan lintasan medan radial dari elektroda bertegangan tinggi menuju \textit{casing} yang \textit{grounded} (area potensial rendah).
 
-Pada rentang posisi ujung barel eksterior, tampak garis medan listrik melengkung (deviasi radial asimetris). Kelengkungan medan ekuipotensial eksterior (\textit{fringing field}) terjadi akibat fakta bahwa pelat konduktor (barel lensa kamera) bukan bersifat memanjang tak terhingga seperti pada hukum Gauss asimtotik. Fenomena fisis dua dimensi ini dapat disimulasikan menggunakan matriks \textit{sparse} stensil batas fisis, yang merangkum variasi nilai ruang di setiap piksel untuk merekam "kebocoran" arah orientasi tanpa batasan aproksimasi komputasi yang rumit.
+Pada rentang posisi ujung gulungan, tampak garis medan listrik melengkung (deviasi radial asimetris). Kelengkungan medan ekuipotensial eksterior (\textit{fringing field}) terjadi akibat fakta bahwa elektroda foil bukan bersifat memanjang tak terhingga seperti pada kapasitor koaksial ideal. Justru di kawasan inilah konsentrasi medan tertinggi muncul sehingga rawan memicu dadal listrik (\textit{breakdown}) ke \textit{casing}; pemetaan dua dimensi ini menjadi dasar kuantitatif untuk menentukan margin ketebalan isolator ujung. Fenomena fisis dua dimensi ini dapat disimulasikan menggunakan matriks \textit{sparse} stensil batas fisis, yang merangkum variasi nilai ruang di setiap piksel untuk merekam "kebocoran" arah orientasi tanpa batasan aproksimasi komputasi yang rumit.
 
-Untuk validasi, ditunjukkan profil perbandingan gradien skalar lintang batas $V(r)$ tengah silinder. Perbandingan garis data komputasi ekuivalen (titik dot) dan kurva acuan logaritma aproksimasi Gauss analitik (putus-putus) menunjukkan akurasi resolusi simulasi numerikal dalam metode diskritisasi yang cukup presisi, mencatatkan defisiasi toleransi \textit{error} minor $\approx 2,08\%$. Faktor persentase kecil tersebut berasal dari limitasi panjang matriks kisi ruang ($\Delta r$) serta pelebaran minor dari deviasi (\textit{fringing}) ke arah sentral geometri. Hal ini membuktikan kemampuan FDFD metode konservatif bagi pemodelan elektrostatika tabung ruang nyata.
+Untuk validasi, ditunjukkan profil perbandingan gradien skalar lintang batas $V(r)$ tengah silinder. Perbandingan garis data komputasi ekuivalen (titik dot) dan kurva acuan logaritma kapasitor koaksial analitik (putus-putus) menunjukkan akurasi resolusi simulasi numerikal dalam metode diskritisasi yang cukup presisi, mencatatkan defisiasi toleransi \textit{error} yang kecil $\approx 2,37\%$. Faktor persentase kecil tersebut berasal dari limitasi panjang matriks kisi ruang ($\Delta r$) serta pelebaran yang kecil dari deviasi (\textit{fringing}) ke arah sentral geometri. Hal ini membuktikan kemampuan FDFD metode konservatif bagi pemodelan elektrostatika kapasitor tabung nyata.
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=\linewidth]{figures/kasus2.png}
-\caption{\textit{Output} program Kasus 2: elektrostatik \textit{barrel}-\textit{housing} (potensial, besar dan arah medan, serta validasi koaksial)}
+\caption{\textit{Output} program Kasus 2: elektrostatik kapasitor tabung \textit{flash} elektroda dalam--\textit{casing} (potensial, besar dan arah medan, serta validasi koaksial)}
 \label{fig:kasus2}
 \end{figure}
 
+\vspace{2pt}
+\noindent{\small Catatan: \textit{source code} lengkap Kasus 2 dapat diakses pada repositori \href{https://github.com/SandyFauzi/Fisika-Komputasi-5}{\texttt{github.com/SandyFauzi/Fisika-Komputasi-5}}.}
+
 % ============================================================
-\section{Kasus 3: Distribusi Medan Listrik pada \textit{Dome Port} Dielektrik dalam Medan Seragam (Volume Hingga)}
+\newpage
+\section{Kasus 3: Distribusi Medan Listrik pada Tetesan Kristal Cair (PDLC) \textit{ND Filter} Elektronik dalam Medan Seragam (Volume Hingga)}
 % ============================================================
 
 \subsection{Pendahuluan}
 
 \subsubsection{Latar Belakang}
-Pada kamera bawah air (\textit{underwater housing}), di depan modul lensa dipasang \textit{dome port}, yaitu kubah transparan berbahan dielektrik seperti akrilik atau kaca optik yang berfungsi mempertahankan sudut pandang lensa sekaligus meminimalkan distorsi refraksi pada antarmuka air-udara. Ketika dome berada dalam medan listrik eksternal, misalnya akibat muatan statik terlarut di lingkungan air, material dome mengalami polarisasi (\textit{polarization}). Polarisasi ini membangkitkan muatan terikat (\textit{bound charge}) pada permukaan dome, yang selanjutnya mengubah sebaran medan, baik di dalam maupun di sekitar kubah.
+Kamera sinema profesional kini dilengkapi fitur \textit{Electronic Variable ND Filter}, yaitu kaca penapis yang kerapatannya (kemampuan menggelap) dapat diatur secara elektrik tanpa mengganti filter fisik. Salah satu teknologi yang mendasarinya adalah \textit{Polymer Dispersed Liquid Crystal} (PDLC): pada skala mikroskopis, material kristal cair tersebar sebagai tetesan-tetesan (\textit{droplet}) dielektrik berbentuk hampir bola di dalam matriks polimer. Ketika tegangan dikenakan melalui sepasang elektroda transparan ITO, terbentuk medan listrik penggerak yang hampir seragam $E_0$ menembus tetesan kristal cair, memutar orientasi molekulnya sehingga indeks bias berubah dan cahaya yang lewat teratenuasi.
 
-Oleh karena tidak terdapat muatan bebas pada material, potensial tetap memenuhi persamaan Laplace, tetapi dengan lompatan permitivitas (\textit{permittivity jump}) pada antarmuka dome. Penanganan lompatan ini menuntut formulasi yang menjaga kontinuitas komponen normal medan perpindahan listrik (\textit{displacement field}) . Geometri bola tidak memiliki solusi analitik tertutup untuk konfigurasi sembarang, sehingga persoalan diselesaikan secara numerik dengan metode volume hingga (\textit{finite volume} \textit{method}, FVM).
+Pada keadaan ini, tiap tetesan kristal cair berperilaku sebagai bola dielektrik berjari-jari $a$ (orde mikrometer) yang direndam di dalam medan seragam. Tetesan terpolarisasi (\textit{polarization}) dan membangkitkan muatan terikat (\textit{bound charge}) pada permukaannya, yang menata ulang sebaran medan di dalam dan di sekitar tetesan. Karena tidak terdapat muatan bebas, potensial tetap memenuhi persamaan Laplace, tetapi dengan lompatan permitivitas (\textit{permittivity jump}) pada antarmuka tetesan--matriks. Penanganan lompatan ini menuntut formulasi yang menjaga kontinuitas komponen normal medan perpindahan listrik (\textit{displacement field}) $\mathbf{D}$. Geometri bola tidak memiliki solusi analitik tertutup untuk konfigurasi sembarang, sehingga persoalan diselesaikan secara numerik dengan metode volume hingga (\textit{finite volume method}, FVM).
 
 \subsubsection{Rumusan Masalah}
-Permasalahan yang dikaji: (1) bagaimana distribusi medan listrik di dalam dan di sekitar dome dielektrik yang ditempatkan dalam medan seragam; (2) bagaimana perilaku garis medan saat melintasi antarmuka dielektrik; serta (3) seberapa besar atenuasi medan di bagian dalam dome dibandingkan dengan prediksi analitik bola dielektrik klasik.
+Permasalahan yang dikaji: (1) bagaimana distribusi medan listrik di dalam dan di sekitar tetesan kristal cair yang ditempatkan dalam medan penggerak seragam; (2) bagaimana perilaku garis medan saat melintasi antarmuka dielektrik tetesan--matriks; serta (3) seberapa besar atenuasi medan di bagian dalam tetesan dibandingkan dengan prediksi analitik bola dielektrik klasik.
 
 \subsubsection{Tujuan}
-Penelitian bertujuan menyelesaikan persamaan Laplace koordinat bola dengan syarat batas dielektrik menggunakan metode volume hingga, memvisualisasikan besar dan arah medan listrik, dan memvalidasi medan interior dome terhadap hasil klasik bola dielektrik dalam medan seragam.
+Penelitian bertujuan menyelesaikan persamaan Laplace koordinat bola dengan syarat batas dielektrik menggunakan metode volume hingga, memvisualisasikan besar dan arah medan listrik pada tetesan kristal cair PDLC, dan memvalidasi medan interior tetesan terhadap hasil klasik bola dielektrik dalam medan seragam.
 
 \subsection{Teori Dasar}
 
 \subsubsection{Elektrostatika Medium Dielektrik dan Polarisasi}
-Berbeda dengan bahan konduktor yang membiarkan muatan bergerak bebas ke permukaan, material dielektrik seperti akrilik (kaca) pada lensa penutup bawah air terbuat dari atom-atom yang menahan erat elektronnya. Ketika kubah diletakkan di tengah medan listrik eksternal $\mathbf{E}_{0}$, atom-atom material merespon dengan memelarkan posisi awan elektron relatif terhadap inti (polarisasi). Ini menciptakan momen dipol terinduksi berskala makroskopik yang direpresentasikan dengan rapat polarisasi $\mathbf{P}$.
+Berbeda dengan bahan konduktor yang membiarkan muatan bergerak bebas ke permukaan, material dielektrik seperti kristal cair pada tetesan PDLC terbuat dari molekul-molekul yang menahan erat elektronnya. Ketika tetesan diletakkan di tengah medan listrik penggerak $\mathbf{E}_{0}$, molekul material merespon dengan memelarkan dan menjajarkan posisi awan elektronnya relatif terhadap inti (polarisasi). Ini menciptakan momen dipol terinduksi berskala makroskopik yang direpresentasikan dengan rapat polarisasi $\mathbf{P}$.
 
 Kehadiran polarisasi membangkitkan muatan-muatan terikat (\textit{bound charge}) tepat di permukaan batas antar-muka medium. Untuk mengakomodasi hal ini tanpa repot melacak sebaran spesifik $\rho_{bound}$, Maxwell memperkenalkan vektor perpindahan listrik $\mathbf{D} = \varepsilon_0 \mathbf{E} + \mathbf{P} = \varepsilon \mathbf{E}$. Di kawasan tanpa muatan bebas, divergensinya harus nol. Dengan mensubstitusi $\mathbf{E} = -\nabla V$, diperoleh hukum Gauss Dielektrik:
 
@@ -348,16 +353,16 @@ Kehadiran polarisasi membangkitkan muatan-muatan terikat (\textit{bound charge})
 \adjustbox{max width=0.95\linewidth}{$\displaystyle \nabla\cdot\left(\varepsilon(\mathbf{r})\,\nabla V\right) = 0$}
 \end{equation}
 
-Perhatikan bahwa konstanta $\varepsilon$ tak dapat ditarik keluar dari operator divergensi $\nabla$ karena ia bernilai spesifik sebagai fungsi posisi $\mathbf{r}$. Nilai ini akan mengalami lompatan (diskontinuitas atau permittivity jump) eksak pada tepian cangkang dari permitivitas udara ($\varepsilon_0$) menjadi permitivitas akrilik ($\varepsilon_r \varepsilon_0$).
+Perhatikan bahwa konstanta $\varepsilon$ tak dapat ditarik keluar dari operator divergensi $\nabla$ karena ia bernilai spesifik sebagai fungsi posisi $\mathbf{r}$. Nilai ini akan mengalami lompatan (diskontinuitas atau permittivity jump) eksak pada tepian tetesan dari permitivitas matriks polimer acuan ($\varepsilon_0$) menjadi permitivitas kristal cair ($\varepsilon_r \varepsilon_0$).
 
 Syarat batas diskontinuitas normal secara matematis menyatakan fluks $\mathbf{D}_{\perp}$ harus kontinu melintasi dinding (tidak ada muatan bebas terjebak), yang berimplikasi pada pembiasan atau tekukan mendadak lintasan fluks medan saat masuk:
 \begin{equation}
-\adjustbox{max width=0.95\linewidth}{$\displaystyle \left( \varepsilon_{\text{air}}\frac{\partial V}{\partial n} \right)_{\text{keluar}} = \left( \varepsilon_{\text{kaca}}\frac{\partial V}{\partial n} \right)_{\text{masuk}}$}
+\adjustbox{max width=0.95\linewidth}{$\displaystyle \left( \varepsilon_{\text{matriks}}\frac{\partial V}{\partial n} \right)_{\text{keluar}} = \left( \varepsilon_{\text{LC}}\frac{\partial V}{\partial n} \right)_{\text{masuk}}$}
 \end{equation}
 Untuk menangani kondisi pelik diskontinuitas batas secara elegan tanpa tebakan fungsi aneh, teknik diskritisasi Metode Volume Hingga (FVM) digunakan.
 
 \subsubsection{Persamaan Laplace Koordinat Bola}
-Model setengah bola menuntut \textit{grid} komputasi koordinat polar silindris $(r, \theta)$. Operator nabla disesuaikan sehingga persamaan konservatif dielektrik mengambil wujud:
+Model tetesan berbentuk bola menuntut \textit{grid} komputasi koordinat polar bola $(r, \theta)$ pada bidang meridian. Operator nabla disesuaikan sehingga persamaan konservatif dielektrik mengambil wujud:
 \begin{equation}
 \adjustbox{max width=0.95\linewidth}{$\displaystyle \frac{1}{r^2}\frac{\partial}{\partial r}\left(r^2 \varepsilon \frac{\partial V}{\partial r}\right) + \frac{1}{r^2 \sin\theta}\frac{\partial}{\partial \theta}\left(\varepsilon \sin\theta \frac{\partial V}{\partial \theta}\right) = 0$}
 \end{equation}
@@ -385,18 +390,22 @@ Perakitan dimensi stensil koefisien rasio sel dalam sistem matriks bola untuk \t
 
 \subsection{Hasil dan Pembahasan}
 
-Visualisasi kontur pada Gambar \ref{fig:kasus3} (Kiri) merepresentasikan amplitudo besar medan listrik $|\mathbf{E}|$. Secara eksterior (luar), arah penyebaran fluks merambat dalam bentuk gelombang konstan linear dan merata ($E_0$). Mendekati perbatasan batas (\textit{boundary}) dengan cangkang \textit{dome port} dielektrik (ditandai oleh garis batas merah putus-putus), arah perambatan vektor orientasi refraksi medan panah $\mathbf{E}$ membelok ke arah radial. Pembengkokan garis gaya medan tersebut membuktikan keberadaan intervensi orientasi (induksi polarisasi molekuler) karena perubahan permitivitas diskontinu antarmuka antara area hampa ke akrilik dielektrik. Rentang area interior bola juga ditandai dengan perubahan kontur gradien warna biru pekat. Perbedaan tajam skalar warna ini mendemonstrasikan fenomena fisika efektivitas absorpsi redaman (\textit{depolarization} tameng) akibat susunan polarisasi induksi yang terjadi secara spasial dalam material dielektrik terkait.
+Visualisasi kontur pada Gambar \ref{fig:kasus3} (Kiri) merepresentasikan amplitudo besar medan listrik $|\mathbf{E}|$. Secara eksterior (luar), arah penyebaran fluks merambat dalam bentuk gelombang konstan linear dan merata ($E_0$). Mendekati perbatasan batas (\textit{boundary}) dengan tetesan kristal cair dielektrik (ditandai oleh garis batas putus-putus), arah perambatan vektor orientasi refraksi medan panah $\mathbf{E}$ membelok ke arah radial. Pembengkokan garis gaya medan tersebut membuktikan keberadaan intervensi orientasi (induksi polarisasi molekuler) karena perubahan permitivitas diskontinu antarmuka antara matriks polimer ke kristal cair dielektrik. Rentang area interior tetesan juga ditandai dengan perubahan kontur gradien warna biru pekat. Perbedaan tajam skalar warna ini mendemonstrasikan fenomena fisika efektivitas absorpsi redaman (\textit{depolarization} tameng) akibat susunan polarisasi induksi yang terjadi secara spasial dalam material kristal cair terkait.
 
-Berdasarkan perbandingan irisan medan pada \texttt{E_z} sumbu sentral simetris (Gambar \ref{fig:kasus3} Kanan), dapat dilihat karakteristik ekuivalen pada perambatan medan dielektrik yang lebih homogen. Titik-titik luaran komputasi membentuk lereng horizontal lurus (konstan mendatar) murni selama merambat sejauh jarak rentang limit radius interior geometri bola $R$. Penurunan rata-rata (atenuasi) pada internal \textit{dome} ditaksir pada nilai besaran $\approx 540.0\text{ V/m}$. Nilai diskritisasi batas FVM numerik tersebut mendekati garis batas referensi kalkulasi rasio teoretik (Hukum Gauss murni) di besaran nilai ukur sebesar $\approx 555.6\text{ V/m}$. Presisi yang memuat perbedaan margin \textit{error} hanya dengan porsi toleransi nilai selisih $< 2,8\%$ membuktikan kemampuan metode algoritma komputasi interpolasi batas harmonik \textit{FVM cell-centered} mengaproksimasi lompatan fasa gelombang radial diskontinu di batas geometri lengkung (yang mana terkadang menghasilkan fluktuasi lokal kecil \textit{aliasing peak} atau \textit{spike} pada batas resolusi celah \textit{grid} komputasi).
+Berdasarkan perbandingan irisan medan pada \texttt{E_z} sumbu sentral simetris (Gambar \ref{fig:kasus3} Kanan), dapat dilihat karakteristik ekuivalen pada perambatan medan dielektrik yang lebih homogen. Titik-titik luaran komputasi membentuk lereng horizontal lurus (konstan mendatar) murni selama merambat sejauh jarak rentang limit radius interior tetesan bola $a$. Penurunan rata-rata (atenuasi) medan di internal tetesan kristal cair ditaksir pada nilai besaran $\approx 540.0\text{ V/m}$. Nilai diskritisasi batas FVM numerik tersebut mendekati garis batas referensi kalkulasi rasio teoretik (Hukum Gauss murni) di besaran nilai ukur sebesar $\approx 555.6\text{ V/m}$. Presisi yang memuat perbedaan margin \textit{error} hanya dengan porsi toleransi nilai selisih $< 2,8\%$ membuktikan kemampuan metode algoritma komputasi interpolasi batas harmonik \textit{FVM cell-centered} mengaproksimasi lompatan fasa gelombang radial diskontinu di batas geometri lengkung (yang mana terkadang menghasilkan fluktuasi lokal kecil \textit{aliasing peak} atau \textit{spike} pada batas resolusi celah \textit{grid} komputasi).
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=\linewidth]{figures/kasus3.png}
-\caption{\textit{Output} program Kasus 3: \textit{dome port} dielektrik (potensial, besar dan arah medan, serta validasi medan dalam)}
+\caption{\textit{Output} program Kasus 3: tetesan kristal cair PDLC \textit{ND filter} (potensial, besar dan arah medan, serta validasi medan dalam)}
 \label{fig:kasus3}
 \end{figure}
 
+\vspace{2pt}
+\noindent{\small Catatan: \textit{source code} lengkap Kasus 3 dapat diakses pada repositori \href{https://github.com/SandyFauzi/Fisika-Komputasi-5}{\texttt{github.com/SandyFauzi/Fisika-Komputasi-5}}.}
+
 % ============================================================
+\newpage
 \section{Kasus 4: Distribusi Medan Magnet Aktuator Voice Coil Motor (Magnetostatik Silindris)}
 % ============================================================
 
@@ -420,8 +429,6 @@ Voice Coil Motor (VCM) merupakan aktuator elektromagnetik yang banyak digunakan 
 \item Mengkaji karakteristik medan magnet yang berperan dalam pembangkitan gaya elektromagnetik pada sistem autofokus.
 \item Memvalidasi hasil numerik terhadap teori solenoida sebagai acuan analitik.
 \end{enumerate}
-
-\subsection{Teori Dasar}
 
 \subsection{Teori Dasar}
 
@@ -494,6 +501,9 @@ Pada panel kanan, grafik nilai medan magnet di sepanjang sumbu utama ($B_z$) ter
 \label{fig:kasus4}
 \end{figure}
 
+\vspace{2pt}
+\noindent{\small Catatan: \textit{source code} lengkap Kasus 4 dapat diakses pada repositori \href{https://github.com/SandyFauzi/Fisika-Komputasi-5}{\texttt{github.com/SandyFauzi/Fisika-Komputasi-5}}.}
+
 % ============================================================
 \section{Kasus 5: Distribusi Medan Magnet Magnet Permanen OIS sebagai Bola Termagnetisasi Seragam}
 % ============================================================
@@ -559,6 +569,9 @@ Panel kanan memperlihatkan \textit{plot} irisan medan sumbu-$y$ ($\mathbf{B}_y$)
 \caption{\textit{Output} program Kasus 5: magnet OIS bola seragam (besar medan, garis fluks, dan profil medan)}
 \label{fig:kasus5}
 \end{figure}
+
+\vspace{2pt}
+\noindent{\small Catatan: \textit{source code} lengkap Kasus 5 dapat diakses pada repositori \href{https://github.com/SandyFauzi/Fisika-Komputasi-5}{\texttt{github.com/SandyFauzi/Fisika-Komputasi-5}}.}
 
 % ============================================================
 \section{Kasus 6: Propagasi Cahaya melalui \textit{Dome Port} dan Lensa menuju Sensor CMOS (Yee \textit{Leapfrog} FDTD)}
@@ -637,6 +650,9 @@ Secara teknis, larik piksel (\textit{pixel array}) sensor CMOS yang digunakan pa
 \label{fig:kasus6}
 \end{figure}
 
+\vspace{2pt}
+\noindent{\small Catatan: \textit{source code} lengkap Kasus 6 dapat diakses pada repositori \href{https://github.com/SandyFauzi/Fisika-Komputasi-5}{\texttt{github.com/SandyFauzi/Fisika-Komputasi-5}}.}
+
 % ============================================================
 \section{Kasus 7: Penyerapan Foton pada Fotodioda CMOS dengan \textit{Crank-Nicolson} Dua Dimensi}
 % ============================================================
@@ -669,7 +685,7 @@ Suku $-\frac{\hbar^2}{2m_e^*}\nabla^2$ merepresentasikan energi kinetik gelomban
 \end{equation}
 Sifat uniter (eksponensial imajiner) ini menjamin bahwa Total Probabilitas $\iint |\psi|^2 dx dy = 1$ tidak akan pernah berkurang atau bocor tanpa alasan (kelestarian jumlah elektron).
 
-\subsubsection{Kegagalan Euler dan Kehebatan Skema \textit{Crank-Nicolson}}
+\subsubsection{Kegagalan Euler dan Solusi dari Skema \textit{Crank-Nicolson}}
 Jika kita secara naif mendiskritisasi turunan waktu $\partial \psi/\partial t$ menggunakan beda maju Forward Euler $\psi^{n+1} = (I - \frac{i \Delta t}{\hbar}\hat{H})\psi^n$, persamaan tak lagi mematuhi sifat uniter. Norma probabilitas akan meledak secara eksponensial (energi tiruan bertambah), menghancurkan simulasi seketika. 
 
 Metode \textit{Crank-Nicolson} menyelamatkan ini. Alih-alih maju sepihak, ia merata-ratakan operator separuh implisit separuh eksplisit (Hukum Trapesium). Transformasi aljabar Cayley mengubah eksponensial menjadi bentuk pecahan aproksimasi orde dua:
@@ -681,7 +697,7 @@ Persamaan matriks implisit ini $\mathbf{A} \cdot x_{n+1} = \mathbf{B} \cdot x_{n
 \subsection{Metodologi}
 
 \subsubsection{Konstruksi Hamiltonian dan CAP}
-Hamiltonian $\hat{H}$ matriks \textit{sparse} 2D dirakit melaui kombinasi linier turunan stensil lima-titik $\nabla^2$ ditambah tegangan $U$ bukit-sumur pada diagonal. Karena domain kita terputus kotak berhingga, setiap gelombang yang menabrak pinggiran tembok \textit{grid} akan memantul balik secara berisik. Agar hal ini tak terjadi, di sekeliling pinggiran piksel CMOS kita bubuhkan potensial maya imajiner \textit{(Complex Absorbing Potential / CAP)} $U_{\text{CAP}} = -i V_{\text{abs}}$. Sifat imajiner dari CAP dengan perlahan "memakan" atau "membunuh" amplitudo gelombang tanpa pantulan. 
+Hamiltonian $\hat{H}$ matriks \textit{sparse} 2D dirakit melaui kombinasi linier turunan stensil lima-titik $\nabla^2$ ditambah tegangan $U$ bukit-sumur pada diagonal. Karena domain kita terputus kotak berhingga, setiap gelombang yang menabrak pinggiran tembok \textit{grid} akan memantul balik secara berisik. Agar hal ini tak terjadi, di sekeliling pinggiran piksel CMOS kita bubuhkan potensial maya imajiner \textit{(Complex Absorbing Potential / CAP)} $U_{\text{CAP}} = -i V_{\text{abs}}$. Sifat imajiner dari CAP dengan perlahan "memakan" amplitudo gelombang tanpa pantulan. 
 
 \subsubsection{Akselerasi Matriks Numba dan Faktorisasi LU}
 Meskipun metode \textit{Crank-Nicolson} stabil, proses komputasinya cukup berat karena membutuhkan perhitungan invers matriks $\mathbf{A}$ yang berukuran besar, yaitu $\approx 26.000 \times 26.000$ titik sel komputasi pada tiap langkah waktu (\textit{timestep}). Perakitan matriks ini dengan perulangan bawaan Python murni akan menyebabkan penurunan performa secara drastis (\textit{bottleneck}). Untuk mengatasinya, rutinitas pengisian matriks Hamiltonian diakselerasi menggunakan kompilasi \textit{Just-In-Time} (JIT) \textit{Numba} (\texttt{@njit}), yang mengkonversi struktur Python menjadi format kode mesin yang dioptimalkan.
@@ -702,6 +718,9 @@ Grafik panel kanan merekam jumlah proporsi total fungsi gelombang yang telah dia
 \caption{\textit{Output} program Kasus 7: fotodioda CMOS (rapat peluang, citra muatan terkumpul, dan efisiensi penangkapan)}
 \label{fig:kasus7}
 \end{figure}
+
+\vspace{2pt}
+\noindent{\small Catatan: \textit{source code} lengkap Kasus 7 dapat diakses pada repositori \href{https://github.com/SandyFauzi/Fisika-Komputasi-5}{\texttt{github.com/SandyFauzi/Fisika-Komputasi-5}}.}
 
 % ============================================================
 \newpage

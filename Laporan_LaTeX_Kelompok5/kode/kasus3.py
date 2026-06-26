@@ -1,4 +1,4 @@
-# Kasus 3 - Bola dielektrik (dome) dalam medan seragam (Laplace, FV), dashboard 3 panel
+# Kasus 3 - Tetesan kristal cair PDLC pada ND filter elektronik (Laplace, FV), dashboard 3 panel
 import numpy as np
 import scipy.sparse as sp
 import scipy.sparse.linalg as spla
@@ -7,9 +7,9 @@ from matplotlib.animation import FuncAnimation
 from IPython.display import HTML, display
 from numba import njit
 
-A_dome = 50e-3
-E0 = 1.0e3
-Rmax = 300e-3
+A_drop = 1.0e-6             # jari-jari tetesan kristal cair (orde mikrometer)
+E0 = 1.0e3                  # medan listrik penggerak seragam dari elektroda ITO (skala acuan)
+Rmax = 6e-6                 # jari-jari domain (matriks polimer di sekeliling tetesan)
 Nr, Nt = 120, 100
 dr, dth = Rmax / Nr, np.pi / Nt
 r = (np.arange(Nr) + 0.5) * dr
@@ -71,9 +71,9 @@ def rakit(eps, r, rf, sthf, sthc, cth, dr, dth, E0):
     return R[:c], C[:c], Vv[:c], rhs
 
 
-# Selesaikan potensial dan medan untuk satu permitivitas dome
+# Selesaikan potensial dan medan untuk satu permitivitas tetesan kristal cair
 def solve(eps_in):
-    eps = np.where(r[:, None] <= A_dome, eps_in, 1.0) * np.ones((Nr, Nt))
+    eps = np.where(r[:, None] <= A_drop, eps_in, 1.0) * np.ones((Nr, Nt))
     R, C, Vv, rhs = rakit(eps, r, rf, sthf, sthc, cth, dr, dth, E0)
     M = sp.csr_matrix((Vv, (R, C)), shape=(Nr * Nt, Nr * Nt))
     V = spla.spsolve(M, rhs).reshape(Nr, Nt)
@@ -87,30 +87,30 @@ def solve(eps_in):
     return V, Emag, Ex, Ez
 
 
-# Validasi medan dalam bola
+# Validasi medan dalam tetesan (bola dielektrik dalam medan seragam)
 Vd, Emd, Exd, Ezd = solve(3.4)
-inti = r[:, None] <= 0.6 * A_dome
+inti = r[:, None] <= 0.6 * A_drop
 Ez_num = float(np.mean(Ezd[np.broadcast_to(inti, Ezd.shape)]))
 Ez_ana = 3 / (3.4 + 2) * E0
 print("E dalam numerik =", round(Ez_num, 1), "V/m ; analitik =", round(Ez_ana, 1), "V/m")
 
-# Ramp permitivitas dome 1.0 sampai 3.4 (durasi animasi sekitar 5 detik)
+# Ramp permitivitas tetesan LC 1.0 sampai 3.4 (saat ND filter diaktifkan, durasi animasi sekitar 5 detik)
 eps_list = np.linspace(1.0, 3.4, 50)
 hasil = [solve(e) for e in eps_list]
 
 # Koordinat meridian dan subgrid panah
 TH, RR = np.meshgrid(th, r)
-Xc = RR * np.sin(TH) * 1e3
-Zc = RR * np.cos(TH) * 1e3
+Xc = RR * np.sin(TH) * 1e6
+Zc = RR * np.cos(TH) * 1e6
 ii = np.arange(3, Nr, 7)
 jj = np.arange(2, Nt, 6)
-Xq = (r[ii][:, None] * np.sin(th[jj])[None, :]) * 1e3
-Zq = (r[ii][:, None] * np.cos(th[jj])[None, :]) * 1e3
+Xq = (r[ii][:, None] * np.sin(th[jj])[None, :]) * 1e6
+Zq = (r[ii][:, None] * np.cos(th[jj])[None, :]) * 1e6
 tt = np.linspace(0, np.pi, 120)
-xc = A_dome * np.sin(tt) * 1e3
-zc = A_dome * np.cos(tt) * 1e3
+xc = A_drop * np.sin(tt) * 1e6
+zc = A_drop * np.cos(tt) * 1e6
 vmax = np.percentile(hasil[-1][1], 99)
-lim = 2.2 * A_dome * 1e3
+lim = 2.2 * A_drop * 1e6
 
 
 # Vektor satuan supaya panah pendek dan hanya menunjukkan arah
@@ -121,18 +121,18 @@ def arah(U, V):
 
 # Dashboard 3 panel: potensial, |E| dengan arah, profil E_z di sumbu
 fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(15, 5), constrained_layout=True)
-fig.suptitle("DISTRIBUSI MEDAN LISTRIK DOME PORT DIELEKTRIK (MEDAN SERAGAM)",
+fig.suptitle("DISTRIBUSI MEDAN LISTRIK TETESAN KRISTAL CAIR PDLC (MEDAN PENGGERAK SERAGAM)",
              fontsize=11, fontweight="bold", color="teal")
 
 V0_, Em0, Ex0, Ez0 = hasil[0]
 m1 = ax1.pcolormesh(Xc, Zc, V0_, shading="gouraud", cmap="RdBu_r")
-ax1.plot(xc, zc, "g--", lw=1.6, label="dome")
+ax1.plot(xc, zc, "g--", lw=1.6, label="tetesan LC")
 ax1.set_aspect("equal")
 ax1.set_xlim(0, lim)
 ax1.set_ylim(-lim, lim)
 ax1.set_title("Potensial V")
-ax1.set_xlabel("x (mm)")
-ax1.set_ylabel("z (mm)")
+ax1.set_xlabel("x (\u00b5m)")
+ax1.set_ylabel("z (\u00b5m)")
 ax1.legend(loc="upper right", fontsize=8)
 fig.colorbar(m1, ax=ax1, label="V (Volt)")
 
@@ -144,17 +144,17 @@ ax2.set_aspect("equal")
 ax2.set_xlim(0, lim)
 ax2.set_ylim(-lim, lim)
 ax2.set_title("|E| dan arah medan")
-ax2.set_xlabel("x (mm)")
-ax2.set_ylabel("z (mm)")
+ax2.set_xlabel("x (\u00b5m)")
+ax2.set_ylabel("z (\u00b5m)")
 fig.colorbar(m2, ax=ax2, label="|E| (V/m)")
 
-ln, = ax3.plot(r * 1e3, Ez0[:, 0], "b-", label="E_z numerik")
-ref, = ax3.plot([0, Rmax * 1e3], [E0, E0], "r--", label="medan dalam (analitik)")
-ax3.axvline(A_dome * 1e3, color="green", ls=":")
-ax3.set_xlim(0, 3 * A_dome * 1e3)
+ln, = ax3.plot(r * 1e6, Ez0[:, 0], "b-", label="E_z numerik")
+ref, = ax3.plot([0, Rmax * 1e6], [E0, E0], "r--", label="medan dalam (analitik)")
+ax3.axvline(A_drop * 1e6, color="green", ls=":")
+ax3.set_xlim(0, 3 * A_drop * 1e6)
 ax3.set_ylim(0, E0 * 1.15)
 ax3.set_title("Validasi E_z di sumbu")
-ax3.set_xlabel("r (mm)")
+ax3.set_xlabel("r (\u00b5m)")
 ax3.set_ylabel("E_z (V/m)")
 ax3.legend(fontsize=8)
 ax3.grid(alpha=0.3)
@@ -175,10 +175,10 @@ def update(f):
 ani = FuncAnimation(fig, update, frames=len(hasil), interval=100, blit=False)
 plt.close(fig)
 
-# Plot statis (akrilik penuh eps_r = 3.4)
+# Plot statis (tetesan LC teraktivasi penuh eps_r = 3.4)
 Vf, Emf, Exf, Ezf = hasil[-1]
 figs, (b1, b2, b3) = plt.subplots(1, 3, figsize=(15, 5), constrained_layout=True)
-figs.suptitle("DISTRIBUSI MEDAN LISTRIK DOME PORT DIELEKTRIK (eps_r = 3.4)", fontweight="bold")
+figs.suptitle("DISTRIBUSI MEDAN LISTRIK TETESAN KRISTAL CAIR PDLC (eps_r = 3.4)", fontweight="bold")
 
 c1 = b1.pcolormesh(Xc, Zc, Vf, shading="gouraud", cmap="RdBu_r")
 b1.plot(xc, zc, "g--", lw=1.6)
@@ -186,8 +186,8 @@ b1.set_aspect("equal")
 b1.set_xlim(0, lim)
 b1.set_ylim(-lim, lim)
 b1.set_title("Potensial V")
-b1.set_xlabel("x (mm)")
-b1.set_ylabel("z (mm)")
+b1.set_xlabel("x (\u00b5m)")
+b1.set_ylabel("z (\u00b5m)")
 figs.colorbar(c1, ax=b1, label="V (Volt)")
 
 c2 = b2.pcolormesh(Xc, Zc, Emf, shading="gouraud", cmap="inferno", vmin=0, vmax=vmax)
@@ -198,17 +198,17 @@ b2.set_aspect("equal")
 b2.set_xlim(0, lim)
 b2.set_ylim(-lim, lim)
 b2.set_title("|E| dan arah medan")
-b2.set_xlabel("x (mm)")
-b2.set_ylabel("z (mm)")
+b2.set_xlabel("x (\u00b5m)")
+b2.set_ylabel("z (\u00b5m)")
 figs.colorbar(c2, ax=b2, label="|E| (V/m)")
 
-b3.plot(r * 1e3, Ezf[:, 0], "b-", label="E_z numerik")
+b3.plot(r * 1e6, Ezf[:, 0], "b-", label="E_z numerik")
 b3.axhline(Ez_ana, color="r", ls="--", label="analitik dalam = %.0f V/m" % Ez_ana)
 b3.axhline(E0, color="gray", ls=":", label="E0 = %.0f V/m" % E0)
-b3.axvline(A_dome * 1e3, color="green", ls=":")
-b3.set_xlim(0, 3 * A_dome * 1e3)
-b3.set_title("Validasi E_z di dalam vs luar dome")
-b3.set_xlabel("r (mm)")
+b3.axvline(A_drop * 1e6, color="green", ls=":")
+b3.set_xlim(0, 3 * A_drop * 1e6)
+b3.set_title("Validasi E_z di dalam vs luar tetesan")
+b3.set_xlabel("r (\u00b5m)")
 b3.set_ylabel("E_z (V/m)")
 b3.legend(fontsize=8)
 b3.grid(alpha=0.3)

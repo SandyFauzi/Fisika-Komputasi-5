@@ -7,7 +7,7 @@ Repositori ini memuat kode sumber dan laporan akhir untuk proyek pemodelan kompu
 Proyek ini dikerjakan oleh Kelompok 5 dengan pembagian fokus simulasi sebagai berikut:
 * Aisyah Nur Khairan: Bertanggung jawab atas Kasus 1 (Konduksi Panas 3D) dan Kasus 6 (Elektrodinamika Maxwell 3D FDTD).
 * Adinda Yulia Putri Rachmat: Bertanggung jawab atas Kasus 4 (Magnetostatika Aktuator VCM) dan Kasus 5 (Propagasi dan Difraksi Lensa Tipis).
-* Sandy Fauzi Amrulloh: Bertanggung jawab atas Kasus 2 (Elektrostatika Silindris Laras Lensa), Kasus 3 (Metode Finite Volume pada Dome Port), dan Kasus 7 (Persamaan Schrodinger 2D Fotodioda).
+* Sandy Fauzi Amrulloh: Bertanggung jawab atas Kasus 2 (Elektrostatika Silindris Kapasitor Tabung Flash), Kasus 3 (Metode Finite Volume pada Tetesan Kristal Cair PDLC), dan Kasus 7 (Persamaan Schrodinger 2D Fotodioda).
 
 ## Dokumentasi Program
 
@@ -21,8 +21,8 @@ Kode sumber untuk seluruh simulasi dieksekusi melalui Python dan diorganisasikan
 
 ### Rincian Kasus Simulasi
 * Kasus 1 (Konduksi Panas Sensor CMOS): Menggunakan metode beda hingga Forward Time Central Space (FTCS) 3D untuk memodelkan disipasi panas akibat perekaman video beresolusi 4K.
-* Kasus 2 (Potensial Laras Lensa): Menggunakan metode Finite Difference Frequency Domain (FDFD) konservatif pada koordinat silinder untuk mengevaluasi medan listrik statis dan efek tepi ruang anular.
-* Kasus 3 (Medan Dome Port Kamera): Menggunakan metode Finite Volume untuk menyelesaikan diskontinuitas permitivitas antarmuka medium air dan kubah akrilik.
+* Kasus 2 (Potensial Kapasitor Tabung Flash): Menggunakan metode Finite Difference Frequency Domain (FDFD) konservatif pada koordinat silinder untuk mengevaluasi medan listrik statis dan efek tepi (fringing field) pada ujung gulungan elektroda kapasitor tegangan tinggi sistem flash, sebagai dasar penentuan ketebalan isolator anti dadal listrik.
+* Kasus 3 (Medan Tetesan Kristal Cair PDLC): Menggunakan metode Finite Volume untuk menyelesaikan diskontinuitas permitivitas antarmuka antara tetesan kristal cair dan matriks polimer pada ND filter elektronik (Polymer Dispersed Liquid Crystal).
 * Kasus 4 (Aktuator VCM Fokus): Menganalisis medan magnetostatik tunak pada aktuator koil menggunakan pendekatan persamaan Poisson untuk potensial vektor magnetik koordinat silinder.
 * Kasus 5 (Propagasi Lensa Tipis): Menyimulasikan prinsip optika gelombang untuk memantau efek perambatan cahaya menembus medium optik.
 * Kasus 6 (Gelombang Maxwell 3D Lensa): Menggunakan metode Finite Difference Time Domain (FDTD) dengan kisi bersilang Yee leapfrog untuk mensimulasikan perambatan pulsa medan elektromagnetik melalui lensa bikonveks secara murni tanpa pendekatan optika geometris.

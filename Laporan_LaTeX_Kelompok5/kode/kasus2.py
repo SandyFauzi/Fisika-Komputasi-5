@@ -1,4 +1,4 @@
-# Kasus 2 - Elektrostatik koaksial barrel-housing (Laplace, FDFD), dashboard 3 panel
+# Kasus 2 - Kapasitor tabung elektrolit HV sistem flash (Laplace silinder, FDFD), dashboard 3 panel
 import numpy as np
 import scipy.sparse as sp
 import scipy.sparse.linalg as spla
@@ -8,13 +8,13 @@ from matplotlib.patches import Rectangle
 from IPython.display import HTML, display
 from numba import njit
 
-a, b = 4e-3, 10e-3          # jari-jari barrel dan rumah
-Lz, V0 = 30e-3, 100.0
+a, b = 4e-3, 10e-3          # jari-jari elektroda dalam (gulungan foil) dan casing (elektroda luar)
+Lz, V0 = 30e-3, 330.0       # panjang tabung dan tegangan isi kapasitor flash (~330 V)
 Nr, Nz = 70, 150
 r = np.linspace(0, b, Nr)
 z = np.linspace(0, Lz, Nz)
 dr, dz = r[1] - r[0], z[1] - z[0]
-half = 7e-3                 # setengah panjang barrel
+half = 7e-3                 # setengah panjang gulungan foil elektroda dalam
 
 
 # Perakitan matriks Laplace silinder (Numba). Indeks node p = i*Nz + j
@@ -34,7 +34,7 @@ def rakit(zc, r, z, dr, dz, a, V0):
             p = i * Nz + j
             barrel = (r[i] <= a) and (z[j] >= zc - half) and (z[j] <= zc + half)
 
-            # Dirichlet: barrel (V0), rumah dan ujung (ground)
+            # Dirichlet: elektroda dalam (V0), casing dan ujung (ground)
             if barrel or i == Nr - 1 or j == 0 or j == Nz - 1:
                 R[c] = p; C[c] = p; Vv[c] = 1.0; c += 1
                 rhs[p] = V0 if barrel else 0.0
@@ -70,14 +70,14 @@ def solve(zc):
     return V, Er, Ez
 
 
-# Validasi koaksial pada bidang tengah
+# Validasi koaksial pada bidang tengah (kapasitor silinder ideal)
 Vmid, _, _ = solve(Lz / 2)
 mask = (r >= a) & (r <= b)
 Vana = V0 * np.log(b / r[mask]) / np.log(b / a)
 err = np.max(np.abs(Vmid[mask, Nz // 2] - Vana)) / V0 * 100
 print("error validasi koaksial =", round(float(err), 2), "%")
 
-# Precompute medan tiap posisi barrel (durasi animasi sekitar 5 detik)
+# Precompute medan tiap posisi gulungan foil (durasi animasi sekitar 5 detik)
 zcs = np.linspace(0.30 * Lz, 0.70 * Lz, 50)
 hasil = [solve(zc) for zc in zcs]
 
@@ -96,7 +96,7 @@ def arah(U, V):
 
 # Dashboard 3 panel: potensial, |E| dengan arah, validasi
 fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(15, 4.6), constrained_layout=True)
-fig.suptitle("DISTRIBUSI POTENSIAL DAN MEDAN LISTRIK BARREL-HOUSING",
+fig.suptitle("DISTRIBUSI POTENSIAL DAN MEDAN LISTRIK KAPASITOR TABUNG FLASH (ELEKTRODA DALAM-CASING)",
              fontsize=12, fontweight="bold", color="navy")
 
 V0_, Er0, Ez0 = hasil[0]
@@ -139,7 +139,7 @@ def update(f):
     barrel.set_x((zcs[f] - half) * 1e3)
     jmf = np.argmin(np.abs(z - zcs[f]))
     ln.set_ydata(V[mask, jmf])
-    ax1.set_title("Potensial V(r,z)  (barrel z = %.1f mm)" % (zcs[f] * 1e3))
+    ax1.set_title("Potensial V(r,z)  (gulungan z = %.1f mm)" % (zcs[f] * 1e3))
     return [im1, im2, quiv, barrel, ln]
 
 
@@ -150,7 +150,7 @@ plt.close(fig)
 Vf, Erf, Ezf = hasil[fmid]
 jmf = np.argmin(np.abs(z - zcs[fmid]))
 figs, (b1, b2, b3) = plt.subplots(1, 3, figsize=(15, 4.6), constrained_layout=True)
-figs.suptitle("DISTRIBUSI POTENSIAL DAN MEDAN LISTRIK BARREL-HOUSING (barrel z = %.1f mm)" % (zcs[fmid] * 1e3),
+figs.suptitle("DISTRIBUSI POTENSIAL DAN MEDAN LISTRIK KAPASITOR TABUNG FLASH (gulungan z = %.1f mm)" % (zcs[fmid] * 1e3),
               fontweight="bold")
 
 s1 = b1.imshow(Vf, origin="lower", cmap="viridis", extent=[0, Lz * 1e3, 0, b * 1e3],
